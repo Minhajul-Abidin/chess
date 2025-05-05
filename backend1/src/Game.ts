@@ -7,6 +7,7 @@ export class Game {
   public player2: WebSocket;
   public board: Chess;
   private startTime: Date;
+  private moveCount = 0;
 
   constructor(player1: WebSocket, player2: WebSocket) {
     this.player1 = player1;
@@ -28,22 +29,33 @@ export class Game {
   }
 
   makeMove(socket: WebSocket, move: { from: string; to: string }) {
-    if (this.board.moves.length % 2 === 0 && socket !== this.player1) {
+    // Validate it's the correct player's turn
+    if (this.moveCount % 2 === 0 && socket !== this.player1) {
       return;
     }
 
-    if (this.board.moves.length % 2 === 1 && socket !== this.player2) {
+    if (this.moveCount % 2 === 1 && socket !== this.player2) {
       return;
     }
 
     try {
       this.board.move(move);
+      this.moveCount++; // Only increment after a successful move
     } catch (e) {
+      console.log(e);
       return;
     }
 
     if (this.board.isGameOver()) {
-      this.player1.emit(
+      this.player1.send(
+        JSON.stringify({
+          type: GAME_OVER,
+          payload: {
+            winner: this.board.turn() === "w" ? "black" : "white",
+          },
+        })
+      );
+      this.player2.send(
         JSON.stringify({
           type: GAME_OVER,
           payload: {
@@ -54,20 +66,13 @@ export class Game {
       return;
     }
 
-    if (this.board.moves.length % 2 === 0) {
-      this.player2.emit(
-        JSON.stringify({
-          type: MOVE,
-          payload: move,
-        })
-      );
-    } else {
-      this.player1.emit(
-        JSON.stringify({
-          type: MOVE,
-          payload: move,
-        })
-      );
-    }
+    // Notify the other player about the move
+    const otherPlayer = socket === this.player1 ? this.player2 : this.player1;
+    otherPlayer.send(
+      JSON.stringify({
+        type: MOVE,
+        payload: move,
+      })
+    );
   }
 }

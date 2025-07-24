@@ -12,11 +12,19 @@ class Game {
         this.startTime = new Date();
         this.player1.send(JSON.stringify({
             type: messages_1.INIT_GAME,
-            payload: { color: "white" },
+            payload: {
+                color: "white",
+                // fen: this.board.fen(),
+                // turn: "white",
+            },
         }));
         this.player2.send(JSON.stringify({
             type: messages_1.INIT_GAME,
-            payload: { color: "black" },
+            payload: {
+                color: "black",
+                // fen: this.board.fen(),
+                // turn: "white",
+            },
         }));
     }
     makeMove(socket, move) {
@@ -50,6 +58,22 @@ class Game {
             }));
             return;
         }
+        // Notify both players about the move
+        // if (this.board.moves.length % 2 === 0) {
+        //   this.player2.emit(
+        //     JSON.stringify({
+        //       type: MOVE,
+        //       payload: move,
+        //     })
+        //   );
+        // } else {
+        //   this.player1.emit(
+        //     JSON.stringify({
+        //       type: MOVE,
+        //       payload: move,
+        //     })
+        //   );
+        // }
         // Notify the other player about the move
         const otherPlayer = socket === this.player1 ? this.player2 : this.player1;
         otherPlayer.send(JSON.stringify({

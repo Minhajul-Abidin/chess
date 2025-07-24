@@ -24,7 +24,7 @@ class GameManager {
             if (message.type === messages_1.INIT_GAME) {
                 if (this.pendingUser) {
                     // Start a game
-                    const game = new Game_1.Game(socket, this.pendingUser);
+                    const game = new Game_1.Game(this.pendingUser, socket);
                     this.games.push(game);
                     this.pendingUser = null;
                 }

@@ -14,16 +14,25 @@ export class Game {
     this.player2 = player2;
     this.board = new Chess();
     this.startTime = new Date();
+
     this.player1.send(
       JSON.stringify({
         type: INIT_GAME,
-        payload: { color: "white" },
+        payload: {
+          color: "white",
+          // fen: this.board.fen(),
+          // turn: "white",
+        },
       })
     );
     this.player2.send(
       JSON.stringify({
         type: INIT_GAME,
-        payload: { color: "black" },
+        payload: {
+          color: "black",
+          // fen: this.board.fen(),
+          // turn: "white",
+        },
       })
     );
   }
@@ -64,22 +73,6 @@ export class Game {
         })
       );
       return;
-    }
-    // Notify both players about the move
-    if (this.board.moves.length % 2 === 0) {
-      this.player2.emit(
-        JSON.stringify({
-          type: MOVE,
-          payload: move,
-        })
-      );
-    } else {
-      this.player1.emit(
-        JSON.stringify({
-          type: MOVE,
-          payload: move,
-        })
-      );
     }
 
     // Notify the other player about the move

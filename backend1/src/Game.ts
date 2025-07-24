@@ -65,6 +65,22 @@ export class Game {
       );
       return;
     }
+    // Notify both players about the move
+    if (this.board.moves.length % 2 === 0) {
+      this.player2.emit(
+        JSON.stringify({
+          type: MOVE,
+          payload: move,
+        })
+      );
+    } else {
+      this.player1.emit(
+        JSON.stringify({
+          type: MOVE,
+          payload: move,
+        })
+      );
+    }
 
     // Notify the other player about the move
     const otherPlayer = socket === this.player1 ? this.player2 : this.player1;
